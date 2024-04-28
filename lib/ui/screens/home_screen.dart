@@ -1,5 +1,7 @@
 import 'package:dsa_algorithm/logic/remote_data_source.dart';
-import 'package:dsa_algorithm/ui/blocs/bloc/keys_bloc.dart';
+import 'package:dsa_algorithm/models/keys_model.dart';
+import 'package:dsa_algorithm/ui/blocs/keys_bloc/keys_bloc.dart';
+import 'package:dsa_algorithm/ui/widgets/sender_and_recipient.dart';
 import 'package:dsa_algorithm/utils/text_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,9 +18,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider(create: (context) => KeysBloc(remoteDataSource))
-    ], child: const HomePageView());
+    return BlocProvider(
+        create: (context) => KeysBloc(remoteDataSource),
+        child: const HomePageView());
   }
 }
 
@@ -36,6 +38,13 @@ class _HomePageViewState extends State<HomePageView> {
   final TextEditingController _qCheks = TextEditingController();
   final TextEditingController _publicKey = TextEditingController();
   final TextEditingController _privateKey = TextEditingController();
+  final TextEditingController _logs = TextEditingController();
+
+  void updateLogs(String text) {
+    setState(() {
+      _logs.text += '$text\n';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +68,7 @@ class _HomePageViewState extends State<HomePageView> {
                 _qCheks.text = TextFormatter.prepareText(state.primeNumbers.qA);
                 _publicKey.text = state.keys.publicKey;
                 _privateKey.text = state.keys.privateKey;
+                setState(() {});
               }
             }, builder: (context, state) {
               return switch (state) {
@@ -258,7 +268,6 @@ class _HomePageViewState extends State<HomePageView> {
                                 width: MediaQuery.of(context).size.width / 2.1,
                                 child: TextField(
                                   controller: _publicKey,
-                                  readOnly: true,
                                   maxLines: 5,
                                   decoration: const InputDecoration(
                                       border: OutlineInputBorder()),
@@ -278,95 +287,19 @@ class _HomePageViewState extends State<HomePageView> {
             TextButton(
               onPressed: () {
                 context.read<KeysBloc>().add(LoadKeys());
+                _logs.text = '';
               },
               child: Text(
                 'Сгенерировать ключи',
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Отправитель',
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
-                    SizedBox(
-                      height: 150,
-                      width: MediaQuery.of(context).size.width / 2.1,
-                      child: const TextField(
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: "Введите сообщение"),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Подписать сообщение',
-                            style: Theme.of(context).textTheme.displayMedium,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Отправить сообщение',
-                            style: Theme.of(context).textTheme.displayMedium,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Получатель',
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
-                    SizedBox(
-                      height: 150,
-                      width: MediaQuery.of(context).size.width / 2.1,
-                      child: const TextField(
-                        readOnly: true,
-                        maxLines: 5,
-                        decoration:
-                            InputDecoration(border: OutlineInputBorder()),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Получить сообщение',
-                            style: Theme.of(context).textTheme.displayMedium,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Расшифровать сообщение',
-                            style: Theme.of(context).textTheme.displayMedium,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Проверить подпись',
-                            style: Theme.of(context).textTheme.displayMedium,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ],
+            SenderAndRecipient(
+              keysModel: KeysModel(
+                publicKey: _publicKey.text,
+                privateKey: _privateKey.text,
+              ),
+              actionsLog: updateLogs,
             ),
             Column(
               children: [
@@ -377,10 +310,12 @@ class _HomePageViewState extends State<HomePageView> {
                 SizedBox(
                   height: 200,
                   width: MediaQuery.of(context).size.width,
-                  child: const TextField(
+                  child: TextField(
+                    controller: _logs,
                     readOnly: true,
                     maxLines: 5,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
+                    decoration:
+                        const InputDecoration(border: OutlineInputBorder()),
                   ),
                 ),
               ],
