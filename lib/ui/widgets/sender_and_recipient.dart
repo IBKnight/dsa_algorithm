@@ -162,8 +162,17 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                         listener: (context, state) {
                           if (state is DecryptLoaded) {
                             verifyStatus = state.verifyStatusModel?.isValid;
-                            decryptedMessage.text =
-                                state.decryptedMessageModel.decryptedText;
+
+                            if (verifyStatus != null) {
+                              if (verifyStatus!) {
+                                _showStatusDialog('Подпись верна');
+                                decryptedMessage.text =
+                                    state.decryptedMessageModel.decryptedText;
+                              } else {
+                                _showStatusDialog('Подпись неверна');
+                                decryptedMessage.text = '';
+                              }
+                            }
                           }
                         },
                         bloc: decryptBloc,
@@ -250,8 +259,8 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                                   ),
                                 ],
                               ),
-                            DecryptError _ => Center(
-                                child: Text(state.errorMessage),
+                            DecryptError _ => const Center(
+                                child: Text('Something went Wrong'),
                               )
                           };
                         },
@@ -304,44 +313,6 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                     s: s.text,
                     publicKey: widget.keysModel.publicKey,
                     encryptedMessage: encryptedMessage.text));
-
-                if (verifyStatus != null && verifyStatus == true) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AlertDialog(
-                        content: SizedBox(
-                          width: 300,
-                          height: 200,
-                          child: Center(
-                              child: Text(
-                            'Подпись верна',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          )),
-                        ),
-                      );
-                    },
-                  );
-                } else if (verifyStatus != null && verifyStatus == false) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AlertDialog(
-                        content: SizedBox(
-                          width: 300,
-                          height: 200,
-                          child: Center(
-                              child: Text(
-                            'Подпись неверна',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          )),
-                        ),
-                      );
-                    },
-                  );
-                }
               },
               child: Text(
                 'Проверить подпись',
@@ -350,45 +321,11 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
             ),
             TextButton(
               onPressed: () {
-                if (verifyStatus != null && verifyStatus == true) {
+                if (verifyStatus == null) {
+                  _showStatusDialog('Небходимо проверить подпись');
+                } else {
                   decryptBloc.add(DecryptMessageEvent(verifyStatus!,
                       encryptedMessage: encryptedMessage.text));
-                } else if (verifyStatus == null) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AlertDialog(
-                        content: SizedBox(
-                          width: 300,
-                          height: 200,
-                          child: Center(
-                              child: Text(
-                            'Небходимо проверить подпись',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          )),
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AlertDialog(
-                        content: SizedBox(
-                          width: 300,
-                          height: 200,
-                          child: Center(
-                              child: Text(
-                            'Подпись неверна',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          )),
-                        ),
-                      );
-                    },
-                  );
                 }
               },
               child: Text(
@@ -399,6 +336,27 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
           ],
         )
       ],
+    );
+  }
+
+  void _showStatusDialog(String statusMessage) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: 300,
+            height: 200,
+            child: Center(
+              child: Text(
+                statusMessage,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
