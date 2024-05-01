@@ -5,8 +5,7 @@ sealed class DecryptEvent {}
 
 final class DecryptMessageEvent extends DecryptEvent {
   final String encryptedMessage;
-  final bool verifyStatus;
-  DecryptMessageEvent(this.verifyStatus, {required this.encryptedMessage});
+  DecryptMessageEvent({required this.encryptedMessage});
 }
 
 final class VerifyMessageEvent extends DecryptEvent {

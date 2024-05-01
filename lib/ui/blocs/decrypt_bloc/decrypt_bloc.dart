@@ -18,8 +18,12 @@ class DecryptBloc extends Bloc<DecryptEvent, DecryptState> {
       final DecryptedMessageModel decryptedMessage =
           await remoteDataSource.decryptMessage(event.encryptedMessage);
 
-      emit(DecryptLoaded(
-          decryptedMessageModel: decryptedMessage, verifyStatusModel: VerifyStatusModel(isValid: event.verifyStatus)));
+      emit(
+        DecryptLoaded(
+            decryptedMessageModel: decryptedMessage,
+            verifyStatusModel: null,
+            shouldShowDialog: false),
+      );
     } catch (e) {
       emit(DecryptError(errorMessage: e.toString()));
     }
@@ -27,7 +31,8 @@ class DecryptBloc extends Bloc<DecryptEvent, DecryptState> {
 
   Future<void> _verifyMessage(event, emit) async {
     try {
-      final decryptedMessage = DecryptedMessageModel(decryptedText: '');
+      final DecryptedMessageModel decryptedMessage =
+          await remoteDataSource.decryptMessage(event.encryptedMessage);
 
       final verifyStatus = await remoteDataSource.verifyMessage(
           cipherMessage: event.encryptedMessage,
@@ -37,7 +42,7 @@ class DecryptBloc extends Bloc<DecryptEvent, DecryptState> {
 
       emit(DecryptLoaded(
           decryptedMessageModel: decryptedMessage,
-          verifyStatusModel: verifyStatus));
+          verifyStatusModel: verifyStatus, shouldShowDialog: true));
     } catch (e) {
       emit(DecryptError(errorMessage: e.toString()));
     }

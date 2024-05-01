@@ -2,6 +2,7 @@ import 'package:dsa_algorithm/logic/remote_data_source.dart';
 import 'package:dsa_algorithm/models/keys_model.dart';
 import 'package:dsa_algorithm/ui/blocs/decrypt_bloc/decrypt_bloc.dart';
 import 'package:dsa_algorithm/ui/blocs/sign_bloc/sign_bloc.dart';
+import 'package:dsa_algorithm/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -55,68 +56,53 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                       Column(
                         children: [
                           Text(
-                            'Отправитель',
+                            Strings.sender,
                             style: Theme.of(context).textTheme.displayLarge,
                           ),
-                          SizedBox(
-                            height: 75,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: TextField(
-                              controller: message,
-                              maxLines: 5,
-                              decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: "Введите сообщение"),
-                            ),
-                          ),
                           Text(
-                            'Подписанное сообщение',
+                            Strings.originalMessage,
                             style: Theme.of(context).textTheme.displayMedium,
                           ),
-                          SizedBox(
+                          CustomTextField(
+                            height: 75,
+                            controller: message,
+                            readOnly: false,
+                            hintText: "Введите сообщение",
+                          ),
+                          Text(
+                            Strings.sign,
+                            style: Theme.of(context).textTheme.displayMedium,
+                          ),
+                          const CustomTextField(
                             height: 50,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: const TextField(
-                              maxLines: 5,
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(5),
-                                  border: OutlineInputBorder()),
-                            ),
+                            readOnly: true,
+                            padding: EdgeInsets.all(5),
                           ),
                         ],
                       ),
                       Column(
                         children: [
                           Text(
-                            'Получатель',
+                            Strings.recipient,
                             style: Theme.of(context).textTheme.displayLarge,
                           ),
-                          SizedBox(
-                            height: 75,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: const TextField(
-                              readOnly: true,
-                              maxLines: 5,
-                              decoration:
-                                  InputDecoration(border: OutlineInputBorder()),
-                            ),
-                          ),
                           Text(
-                            'Расшифрованное сообщение',
+                            Strings.encryptedMessage,
                             style: Theme.of(context).textTheme.displayMedium,
                           ),
-                          SizedBox(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: const TextField(
-                              maxLines: 5,
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(5),
-                                  border: OutlineInputBorder()),
-                            ),
+                          const CustomTextField(
+                            height: 75,
+                            readOnly: true,
                           ),
+                          Text(
+                            Strings.decryptedMessage,
+                            style: Theme.of(context).textTheme.displayMedium,
+                          ),
+                          const CustomTextField(
+                            height: 50,
+                            readOnly: true,
+                            padding: EdgeInsets.all(5),
+                          )
                         ],
                       ),
                     ],
@@ -127,35 +113,29 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                       Column(
                         children: [
                           Text(
-                            'Отправитель',
+                            Strings.sender,
                             style: Theme.of(context).textTheme.displayLarge,
                           ),
-                          SizedBox(
-                            height: 75,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: TextField(
-                              controller: message,
-                              maxLines: 5,
-                              decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: "Введите сообщение"),
-                            ),
-                          ),
                           Text(
-                            'Подписанное сообщение',
+                            Strings.originalMessage,
                             style: Theme.of(context).textTheme.displayMedium,
                           ),
-                          SizedBox(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width / 2.1,
-                            child: TextField(
-                              controller: r,
-                              maxLines: 5,
-                              decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(5),
-                                  border: OutlineInputBorder()),
-                            ),
+                          CustomTextField(
+                            height: 75,
+                            controller: message,
+                            readOnly: false,
+                            hintText: "Введите сообщение",
                           ),
+                          Text(
+                            Strings.sign,
+                            style: Theme.of(context).textTheme.displayMedium,
+                          ),
+                          CustomTextField(
+                            height: 50,
+                            controller: r,
+                            readOnly: false,
+                            padding: const EdgeInsets.all(5),
+                          )
                         ],
                       ),
                       BlocConsumer<DecryptBloc, DecryptState>(
@@ -163,14 +143,18 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                           if (state is DecryptLoaded) {
                             verifyStatus = state.verifyStatusModel?.isValid;
 
-                            if (verifyStatus != null) {
-                              if (verifyStatus!) {
-                                _showStatusDialog('Подпись верна');
-                                decryptedMessage.text =
-                                    state.decryptedMessageModel.decryptedText;
-                              } else {
-                                _showStatusDialog('Подпись неверна');
-                                decryptedMessage.text = '';
+                            decryptedMessage.text =
+                                state.decryptedMessageModel.decryptedText;
+
+                            if (state.shouldShowDialog) {
+                              if (verifyStatus != null) {
+                                if (verifyStatus!) {
+                                  _showStatusDialog('Подпись верна');
+                                  widget.actionsLog('Подпись верна');
+                                } else {
+                                  _showStatusDialog('Подпись неверна');
+                                  widget.actionsLog('Подпись неверна');
+                                }
                               }
                             }
                           }
@@ -181,86 +165,70 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                             DecryptLoading _ => Column(
                                 children: [
                                   Text(
-                                    'Получатель',
+                                    Strings.recipient,
                                     style: Theme.of(context)
                                         .textTheme
                                         .displayLarge,
                                   ),
-                                  SizedBox(
-                                    height: 75,
-                                    width:
-                                        MediaQuery.of(context).size.width / 2.1,
-                                    child: TextField(
-                                      controller: recipientMesasge,
-                                      readOnly: true,
-                                      maxLines: 5,
-                                      decoration: const InputDecoration(
-                                          border: OutlineInputBorder()),
-                                    ),
-                                  ),
                                   Text(
-                                    'Расшифрованное сообщение',
+                                    Strings.encryptedMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .displayMedium,
                                   ),
-                                  SizedBox(
+                                  CustomTextField(
+                                    controller: recipientMesasge,
+                                    height: 75,
+                                    readOnly: true,
+                                  ),
+                                  Text(
+                                    Strings.decryptedMessage,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayMedium,
+                                  ),
+                                  const CustomTextField(
                                     height: 50,
-                                    width:
-                                        MediaQuery.of(context).size.width / 2.1,
-                                    child: const TextField(
-                                      maxLines: 5,
-                                      readOnly: true,
-                                      decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(5),
-                                          border: OutlineInputBorder()),
-                                    ),
+                                    readOnly: true,
+                                    padding: EdgeInsets.all(5),
                                   ),
                                 ],
                               ),
                             DecryptLoaded _ => Column(
                                 children: [
                                   Text(
-                                    'Получатель',
+                                    Strings.recipient,
                                     style: Theme.of(context)
                                         .textTheme
                                         .displayLarge,
                                   ),
-                                  SizedBox(
-                                    height: 75,
-                                    width:
-                                        MediaQuery.of(context).size.width / 2.1,
-                                    child: TextField(
-                                      controller: recipientMesasge,
-                                      readOnly: true,
-                                      maxLines: 5,
-                                      decoration: const InputDecoration(
-                                          border: OutlineInputBorder()),
-                                    ),
-                                  ),
                                   Text(
-                                    'Расшифрованное сообщение',
+                                    Strings.encryptedMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .displayMedium,
                                   ),
-                                  SizedBox(
+                                  CustomTextField(
+                                    controller: recipientMesasge,
+                                    height: 75,
+                                    readOnly: true,
+                                  ),
+                                  Text(
+                                    Strings.decryptedMessage,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayMedium,
+                                  ),
+                                  CustomTextField(
+                                    controller: decryptedMessage,
                                     height: 50,
-                                    width:
-                                        MediaQuery.of(context).size.width / 2.1,
-                                    child: TextField(
-                                      controller: decryptedMessage,
-                                      maxLines: 5,
-                                      readOnly: true,
-                                      decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.all(5),
-                                          border: OutlineInputBorder()),
-                                    ),
+                                    readOnly: true,
+                                    padding: const EdgeInsets.all(5),
                                   ),
                                 ],
                               ),
-                            DecryptError _ => const Center(
-                                child: Text('Something went Wrong'),
+                            DecryptError _ => Center(
+                                child: Text(state.errorMessage),
                               )
                           };
                         },
@@ -274,62 +242,63 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
             }),
         Row(
           children: [
-            TextButton(
+            FilledButton.tonal(
               onPressed: () {
                 bloc.add(SignMessageEvent(message.text));
-                widget.actionsLog('Отправитель: Подписал сообщение');
+                widget.actionsLog(
+                    'Отправитель: Отправитель создает подпись (r,s)');
               },
               child: Text(
-                'Подписать сообщение',
+                Strings.signMessage,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () {
-                widget.actionsLog('Отправитель: Отправил сообщение');
+                widget
+                    .actionsLog('Отправитель: Отправляет сообщение и подпись');
               },
               child: Text(
-                'Отправить сообщение',
+                Strings.sendMessage,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
             const Expanded(child: SizedBox()),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () {
                 setState(() {
                   recipientMesasge.text = encryptedMessage.text;
-                  widget.actionsLog('Получатель: Получил сообщение');
+                  widget.actionsLog('Получатель: Получает сообщение и подпись');
                 });
               },
               child: Text(
-                'Получить сообщение',
+                Strings.getMessage,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
-            TextButton(
+            FilledButton.tonal(
+              onPressed: () {
+                decryptBloc.add(DecryptMessageEvent(
+                    encryptedMessage: encryptedMessage.text));
+                widget.actionsLog(
+                    'Получатель: Расшифровывает сообщение с использованием открытого ключа отправителя');
+              },
+              child: Text(
+                Strings.decryptMessage,
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+            ),
+            FilledButton.tonal(
               onPressed: () {
                 decryptBloc.add(VerifyMessageEvent(
                     r: r.text,
                     s: s.text,
                     publicKey: widget.keysModel.publicKey,
                     encryptedMessage: encryptedMessage.text));
+                widget.actionsLog('Получатель: Проверяет подпись');
               },
               child: Text(
-                'Проверить подпись',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                if (verifyStatus == null) {
-                  _showStatusDialog('Небходимо проверить подпись');
-                } else {
-                  decryptBloc.add(DecryptMessageEvent(verifyStatus!,
-                      encryptedMessage: encryptedMessage.text));
-                }
-              },
-              child: Text(
-                'Расшифровать сообщение',
+                Strings.checkSign,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
@@ -357,6 +326,44 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
           ),
         );
       },
+    );
+  }
+}
+
+class CustomTextField extends StatefulWidget {
+  const CustomTextField(
+      {super.key,
+      required this.height,
+      this.controller,
+      required this.readOnly,
+      this.hintText,
+      this.padding});
+
+  final int height;
+  final TextEditingController? controller;
+  final bool readOnly;
+  final String? hintText;
+
+  final EdgeInsets? padding;
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: widget.height.toDouble(),
+      width: MediaQuery.of(context).size.width / 2.1,
+      child: TextField(
+        controller: widget.controller,
+        readOnly: widget.readOnly,
+        maxLines: 5,
+        decoration: InputDecoration(
+            contentPadding: widget.padding,
+            border: const OutlineInputBorder(),
+            hintText: widget.hintText),
+      ),
     );
   }
 }

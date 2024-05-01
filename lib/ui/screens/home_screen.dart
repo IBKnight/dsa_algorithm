@@ -2,8 +2,10 @@ import 'package:dsa_algorithm/logic/remote_data_source.dart';
 import 'package:dsa_algorithm/models/keys_model.dart';
 import 'package:dsa_algorithm/ui/blocs/keys_bloc/keys_bloc.dart';
 import 'package:dsa_algorithm/ui/widgets/sender_and_recipient.dart';
+import 'package:dsa_algorithm/utils/strings.dart';
 import 'package:dsa_algorithm/utils/text_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -137,7 +139,7 @@ class _HomePageViewState extends State<HomePageView> {
                           Column(
                             children: [
                               Text(
-                                'Приватный ключ',
+                                Strings.privateKey,
                                 style: Theme.of(context).textTheme.displayLarge,
                               ),
                               SizedBox(
@@ -156,7 +158,7 @@ class _HomePageViewState extends State<HomePageView> {
                           Column(
                             children: [
                               Text(
-                                'Публичный ключ',
+                                Strings.publicKey,
                                 style: Theme.of(context).textTheme.displayLarge,
                               ),
                               SizedBox(
@@ -241,7 +243,7 @@ class _HomePageViewState extends State<HomePageView> {
                           Column(
                             children: [
                               Text(
-                                'Приватный ключ',
+                                Strings.privateKey,
                                 style: Theme.of(context).textTheme.displayLarge,
                               ),
                               SizedBox(
@@ -260,7 +262,7 @@ class _HomePageViewState extends State<HomePageView> {
                           Column(
                             children: [
                               Text(
-                                'Публичный ключ',
+                                Strings.publicKey,
                                 style: Theme.of(context).textTheme.displayLarge,
                               ),
                               SizedBox(
@@ -284,13 +286,13 @@ class _HomePageViewState extends State<HomePageView> {
                   )
               };
             }),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () {
                 context.read<KeysBloc>().add(LoadKeys());
                 _logs.text = '';
               },
               child: Text(
-                'Сгенерировать ключи',
+                Strings.generateKeys,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
@@ -304,11 +306,11 @@ class _HomePageViewState extends State<HomePageView> {
             Column(
               children: [
                 Text(
-                  'Логи',
+                  Strings.logs,
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
                 SizedBox(
-                  height: 200,
+                  height: 170,
                   width: MediaQuery.of(context).size.width,
                   child: TextField(
                     controller: _logs,

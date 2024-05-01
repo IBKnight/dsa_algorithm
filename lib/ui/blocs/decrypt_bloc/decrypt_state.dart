@@ -8,9 +8,12 @@ final class DecryptLoading extends DecryptState {}
 final class DecryptLoaded extends DecryptState {
   final DecryptedMessageModel decryptedMessageModel;
   final VerifyStatusModel? verifyStatusModel;
+  final bool shouldShowDialog;
 
-  DecryptLoaded({required this.decryptedMessageModel, required this.verifyStatusModel});
-
+  DecryptLoaded(
+      {required this.shouldShowDialog,
+      required this.decryptedMessageModel,
+      required this.verifyStatusModel});
 }
 
 final class DecryptError extends DecryptState {
