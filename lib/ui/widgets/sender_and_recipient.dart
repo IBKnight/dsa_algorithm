@@ -249,7 +249,7 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                     'Отправитель: Отправитель создает подпись (r,s)');
               },
               child: Text(
-                Strings.signMessage,
+                Strings.createSign,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
