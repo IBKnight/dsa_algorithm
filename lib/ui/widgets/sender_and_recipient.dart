@@ -25,6 +25,12 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
   void initState() {
     bloc = SignBloc(_remoteDataSource);
     decryptBloc = DecryptBloc(_remoteDataSource);
+    message.addListener(() {
+      setState(() {
+        textChanged = message.text;
+      });
+    });
+
     super.initState();
   }
 
@@ -34,6 +40,8 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
   final TextEditingController r = TextEditingController();
   final TextEditingController s = TextEditingController();
   final TextEditingController recipientMesasge = TextEditingController();
+  String textForSend = '';
+  String textChanged = '';
 
   @override
   Widget build(BuildContext context) {
@@ -245,6 +253,7 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
             FilledButton.tonal(
               onPressed: () {
                 bloc.add(SignMessageEvent(message.text));
+                textForSend = message.text;
                 widget.actionsLog(
                     'Отправитель: Отправитель создает подпись (r,s)');
               },
@@ -263,12 +272,30 @@ class _SenderAndRecipientState extends State<SenderAndRecipient> {
                 style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
+            // FilledButton.tonal(
+            //   onPressed: () {
+            //     widget
+            //         .actionsLog('Отправитель: Шифрует сообщение');
+            //   },
+            //   child: Text(
+            //     Strings.encryptMessage,
+            //     style: Theme.of(context).textTheme.displayMedium,
+            //   ),
+            // ),
             const Expanded(child: SizedBox()),
             FilledButton.tonal(
               onPressed: () {
                 setState(() {
-                  recipientMesasge.text = encryptedMessage.text;
-                  widget.actionsLog('Получатель: Получает сообщение и подпись');
+                  if (textChanged != textForSend) {
+                    decryptedMessage.text = '';
+                    recipientMesasge.text = '';
+                    _showStatusDialog('Сообщение было изменено. Хеш не совпал');
+
+                  } else {
+                    recipientMesasge.text = encryptedMessage.text;
+                    widget
+                        .actionsLog('Получатель: Получает сообщение и подпись');
+                  }
                 });
               },
               child: Text(

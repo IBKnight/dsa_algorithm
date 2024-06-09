@@ -9,6 +9,7 @@ abstract class Strings {
   static const String signMessage = 'Подписать сообщение';
   static const String createSign = 'Создать подпись';
   static const String sendMessage = 'Отправить сообщение';
+  static const String encryptMessage = 'Зашифровать сообщение';
   static const String getMessage = 'Получить сообщение';
   static const String decryptMessage = 'Расшифровать сообщение';
   static const String checkSign = 'Проверить подпись';

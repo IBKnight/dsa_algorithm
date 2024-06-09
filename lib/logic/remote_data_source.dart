@@ -51,11 +51,16 @@ class RemoteDataSource {
   }
 
   Future<DecryptedMessageModel> decryptMessage(String cipherMessage) async {
-    final response = await _dio.get('http://localhost:8080/encrypt-message',
-        data: {'ciphertext': cipherMessage});
+    try {
+      final response = await _dio.get('http://localhost:8080/encrypt-message',
+          data: {'ciphertext': cipherMessage});
 
-    final data = response.data as Map<String, Object?>;
+      final data = response.data as Map<String, Object?>;
 
-    return DecryptedMessageModel.fromJson(data);
+      return DecryptedMessageModel.fromJson(data);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 }
